@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 15%;
+
+    --primary: 60 100% 50%;
+    --primary-foreground: 0 0% 15%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 15%;
+
+    --nav-active: 180 80% 35%; /* teal for nav */
+
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 142 71% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 94%;
+    --ring: 60 100% 50%;
+
+    --radius: 0.5rem;
+
+    --soft-peach: 20 90% 75%;
+    --soft-blue: 210 100% 40%; /* soft-blue for light mode */
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --nav-active: 180 80% 35%; /* keep teal nav active */
+
+    --soft-blue: 210 100% 40%; /* soft-blue for dark mode */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .text-nav-active {
+    color: hsl(var(--nav-active));
+  }
+
+  .bg-soft-peach {
+    background-color: hsl(var(--soft-peach));
+  }
+
+  .text-soft-peach-foreground {
+    color: hsl(0 0% 0%);
+  }
+
+  .bg-soft-blue {
+    background-color: hsl(var(--soft-blue));
+  }
+
+  .hover\:bg-soft-blue-hover:hover {
+    background-color: hsl(var(--soft-blue));
+  }
+
+  .text-soft-blue-foreground {
+    color: hsl(0 0% 100%);
+  }
+}
