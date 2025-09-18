@@ -29,21 +29,27 @@ const TransportGraph = ({ tripHistory }: TransportGraphProps) => {
   const modeColors: Record<string, string> = {
     car: "#3B82F6",
     bus: "#06B6D4",
-    walk: "#10B981",
-    bike: "#8B5CF6",
+    walk: "#0be49cff",
+    cycle: "#8B5CF6",
     train: "#F87171",
-    motorcycle: "#FBBF24",
-    other: "#F59E0B",
+    motorcycle: "#ffda7eff",
+    other: "#ef9700ff",
+  };
+
+  // map alternate names to standard modes
+  const modeAlias: Record<string, string> = {
+    cycling: "cycle",
+    bike: "motorcycle",
+    walking: "walk",
   };
 
   // Count trips per mode
   const modeCounts: Record<string, number> = {};
   tripHistory.forEach(day => {
     day.trips.forEach(trip => {
-      // Normalize mode
       const normalizedMode = trip.mode.toLowerCase().trim();
-      // Only use "other" if truly unknown
-      const key = normalizedMode in modeColors ? normalizedMode : "other";
+      const resolvedMode = modeAlias[normalizedMode] || normalizedMode;
+      const key = resolvedMode in modeColors ? resolvedMode : "other";
       modeCounts[key] = (modeCounts[key] || 0) + 1;
     });
   });
