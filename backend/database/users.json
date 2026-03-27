@@ -1,0 +1,47 @@
+[
+  {
+    "id": "u1774629706945",
+    "name": "navni",
+    "email": "navni1912@gmail.com",
+    "password": "bucrwocbg",
+    "role": "user",
+    "trips": [
+      {
+        "id": 101,
+        "title": "Home to Office",
+        "route": "Kaloor - Kakkanad",
+        "time": "09:10 - 09:55",
+        "mode": "bus",
+        "icon": "?",
+        "dateLabel": "TODAY - 28 MAR, 2026"
+      }
+    ]
+  },
+  {
+    "id": "u1774634988201",
+    "name": "aria",
+    "email": "abc@gmail.com",
+    "password": "qwertyuiop",
+    "role": "user",
+    "trips": [
+      {
+        "id": 201,
+        "title": "College to Metro",
+        "route": "Aluva - Edappally",
+        "time": "10:00 - 10:35",
+        "mode": "train",
+        "icon": "?",
+        "dateLabel": "TODAY - 28 MAR, 2026"
+      },
+      {
+        "id": 202,
+        "title": "Metro to Home",
+        "route": "Edappally - Kaloor",
+        "time": "18:15 - 18:45",
+        "mode": "bus",
+        "icon": "?",
+        "dateLabel": "TODAY - 28 MAR, 2026"
+      }
+    ]
+  }
+]
