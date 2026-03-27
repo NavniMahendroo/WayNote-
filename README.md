@@ -154,25 +154,6 @@ Open a second terminal:
 Frontend runs at:
 - http://localhost:8080
 
-## Resume-Ready Impact Bullets
-
-Use these directly or adapt:
-
-- Built a full-stack mobility analytics platform using React, TypeScript, Node.js, and Express with role-based dashboards for users and government planners.
-- Implemented GPS-based trip tracking with speed-derived transport mode inference and coordinate-to-location geocoding.
-- Designed and shipped a zoomable India geospatial heatmap pipeline using coordinate clustering, centroid aggregation, and per-hotspot mode decomposition.
-- Developed persistence and API workflows for trip CRUD, live dashboard refresh, anti-cache consistency, and backend-backed deletion semantics.
-
-## MAANG-Focused Discussion Angles
-
-When presenting this project in interviews, focus on:
-
-- Product reasoning: why coordinate analytics matter more than plain location strings.
-- Systems thinking: client collection, server normalization, aggregation, and visualization pipeline.
-- Data quality: handling stale caches, missing coordinates, and legacy records.
-- Scalability path: swapping file store to PostgreSQL + PostGIS, queue-based geocoding, and batched analytics jobs.
-- Tradeoff analysis: precision versus performance in spatial bin sizing and heatmap rendering.
-
 ## Suggested Next Upgrades
 
 - Move storage to PostgreSQL and PostGIS for production geospatial querying.
