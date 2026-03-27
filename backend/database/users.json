@@ -13,7 +13,15 @@
         "time": "09:10 - 09:55",
         "mode": "bus",
         "icon": "?",
-        "dateLabel": "TODAY - 28 MAR, 2026"
+        "dateLabel": "TODAY - 28 MAR, 2026",
+        "startCoord": {
+          "latitude": 9.9951217,
+          "longitude": 76.2920393
+        },
+        "endCoord": {
+          "latitude": 10.01657,
+          "longitude": 76.34275
+        }
       }
     ]
   },
@@ -29,9 +37,17 @@
         "title": "College to Metro",
         "route": "Aluva - Edappally",
         "time": "10:00 - 10:35",
-        "mode": "train",
-        "icon": "?",
-        "dateLabel": "TODAY - 28 MAR, 2026"
+        "mode": "motorcycle",
+        "icon": "🏍️",
+        "dateLabel": "TODAY - 28 MAR, 2026",
+        "startCoord": {
+          "latitude": 10.1077682,
+          "longitude": 76.3568532
+        },
+        "endCoord": {
+          "latitude": 10.0251551,
+          "longitude": 76.3113552
+        }
       },
       {
         "id": 202,
@@ -40,7 +56,51 @@
         "time": "18:15 - 18:45",
         "mode": "bus",
         "icon": "?",
-        "dateLabel": "TODAY - 28 MAR, 2026"
+        "dateLabel": "TODAY - 28 MAR, 2026",
+        "startCoord": {
+          "latitude": 10.0251551,
+          "longitude": 76.3113552
+        },
+        "endCoord": {
+          "latitude": 9.9951217,
+          "longitude": 76.2920393
+        }
+      },
+      {
+        "id": 1774644643266,
+        "title": "Dwarka to Dwarka",
+        "route": "Dwarka - Dwarka",
+        "time": "04:50 - 04:50",
+        "mode": "walk",
+        "icon": "🚶",
+        "notes": "Auto tracked (2 points, 0m 19s)",
+        "dateLabel": "TODAY - 28 MAR 2026",
+        "startCoord": {
+          "latitude": 28.608551934176703,
+          "longitude": 77.03986505036741
+        },
+        "endCoord": {
+          "latitude": 28.608551934176703,
+          "longitude": 77.03986505036741
+        }
+      },
+      {
+        "id": 1774644691781,
+        "title": "Dwarka to Dwarka",
+        "route": "Dwarka - Dwarka",
+        "time": "04:51 - 04:51",
+        "mode": "walk",
+        "icon": "🚶",
+        "notes": "Auto tracked (3 points, 0m 28s)",
+        "dateLabel": "TODAY - 28 MAR 2026",
+        "startCoord": {
+          "latitude": 28.608573807882106,
+          "longitude": 77.03986128820574
+        },
+        "endCoord": {
+          "latitude": 28.608563239601835,
+          "longitude": 77.03985310707318
+        }
       }
     ]
   }

@@ -21,6 +21,8 @@ import DataCollectionPreferences from "./pages/DataCollectionPreferences";
 import NotificationsSettings from "./pages/NotificationsSettings";
 import UnitsOfMeasurement from "./pages/UnitsOfMeasurement";
 import GovernmentDashboard from "./pages/GovernmentDashboard";
+import GovernmentSettings from "./pages/GovernmentSettings";
+import { fetchUserTrips, formatDateLabel, groupTripsByDateLabel } from "./lib/trips-api";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +35,15 @@ export interface Trip {
   icon: string;
   numberOfPeople?: string;
   notes?: string;
+  dateLabel?: string;
+  startCoord?: {
+    latitude: number;
+    longitude: number;
+  };
+  endCoord?: {
+    latitude: number;
+    longitude: number;
+  };
 }
 
 export interface TripDay {
@@ -46,20 +57,9 @@ export type UserRole = "user" | "government";
 const initialTripHistory: TripDay[] = [
   {
     id: 1,
-    date: "TODAY - 24 JULY, 2024",
-    trips: [
-      { id: 1, title: "Home to Work", route: "Kaloor - Kakkanad", time: "10:00 - 10:45", mode: "bus", icon: "🚌" },
-      { id: 2, title: "Work to Cafe", route: "Infopark - Chai Sutta", time: "13:00 - 13:15", mode: "walk", icon: "🚶" }
-    ]
+    date: formatDateLabel(),
+    trips: [],
   },
-  {
-    id: 2,
-    date: "YESTERDAY - 23 JULY, 2024",
-    trips: [
-      { id: 3, title: "Cafe to Library", route: "Chai Sutta - Public Library", time: "14:00 - 14:30", mode: "bus", icon: "🚌" },
-      { id: 4, title: "Library to Home", route: "Public Library - Kaloor", time: "16:30 - 17:15", mode: "bus", icon: "🚌" }
-    ]
-  }
 ];
 
 const App = () => {
@@ -86,6 +86,47 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem("userRole", userRole);
   }, [userRole]);
+
+  useEffect(() => {
+    const loadUserTrips = async () => {
+      if (!isAuthenticated || userRole !== "user") {
+        return;
+      }
+
+      const email = localStorage.getItem("email");
+      if (!email) {
+        return;
+      }
+
+      try {
+        const trips = await fetchUserTrips(email);
+        const groupedTrips = groupTripsByDateLabel(trips);
+        setTripHistory(
+          groupedTrips.length > 0
+            ? groupedTrips
+            : [{ id: 1, date: formatDateLabel(), trips: [] }]
+        );
+      } catch {
+        // Keep local fallback data when backend is unavailable.
+      }
+    };
+
+    void loadUserTrips();
+
+    const intervalId = window.setInterval(() => {
+      void loadUserTrips();
+    }, 15000);
+
+    const onFocus = () => {
+      void loadUserTrips();
+    };
+    window.addEventListener("focus", onFocus);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [isAuthenticated, userRole]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -131,6 +172,16 @@ const App = () => {
                 element={
                   isAuthenticated && userRole === "government" ? (
                     <GovernmentDashboard tripHistory={tripHistory} />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+              <Route
+                path="/gov-settings"
+                element={
+                  isAuthenticated && userRole === "government" ? (
+                    <GovernmentSettings setIsAuthenticated={setIsAuthenticated} />
                   ) : (
                     <Navigate to="/login" replace />
                   )

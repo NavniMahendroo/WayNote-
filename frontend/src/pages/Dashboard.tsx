@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import BottomNavigation from "@/components/BottomNavigation";
 import TravelHeatmap from "@/components/TravelHeatmap";
-import { getPlaceHeatPoints } from "@/lib/heatmap";
+import { getCoordinateHeatPoints } from "@/lib/heatmap";
 
 interface Trip {
   id: number;
@@ -56,7 +56,7 @@ const Dashboard = ({ tripHistory }: DashboardProps) => {
   }, [tripHistory]);
 
   const periodButtons = ["7 days", "14 days", "1 month", "6 months", "1 year"];
-  const heatPoints = useMemo(() => getPlaceHeatPoints(tripHistory), [tripHistory]);
+  const heatPoints = useMemo(() => getCoordinateHeatPoints(tripHistory), [tripHistory]);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -112,7 +112,7 @@ const Dashboard = ({ tripHistory }: DashboardProps) => {
           </CardContent>
         </Card>
 
-        <TravelHeatmap title="Most Traveled Places (You)" points={heatPoints} />
+        <TravelHeatmap title="Travel Density Heatmap (You)" points={heatPoints} />
       </div>
 
       <BottomNavigation />

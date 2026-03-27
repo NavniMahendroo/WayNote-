@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import BottomNavigation from "@/components/BottomNavigation";
 import ManualTripForm from "../components/ManualTripForm";
 import { TripDay, Trip } from "../App";
+import { deleteUserTrip } from "@/lib/trips-api";
+import { toast } from "sonner";
 
 interface TripHistoryProps {
   tripHistory: TripDay[];
@@ -18,6 +20,13 @@ const TripHistory = ({ tripHistory, setTripHistory }: TripHistoryProps) => {
   const [isManualFormOpen, setManualFormOpen] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
 
+  const formatMode = (mode: string) => {
+    const normalized = String(mode || "other").trim().toLowerCase();
+    if (normalized === "walk") return "Walking";
+    if (normalized === "cycle") return "Cycling";
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  };
+
   const handleMenuToggle = (tripId: number) => setOpenMenuId(openMenuId === tripId ? null : tripId);
 
   const handleEditTrip = (trip: Trip) => {
@@ -26,13 +35,28 @@ const TripHistory = ({ tripHistory, setTripHistory }: TripHistoryProps) => {
     setOpenMenuId(null);
   };
 
-  const handleDeleteTrip = (tripId: number) => {
-    const updatedHistory = tripHistory.map((day) => ({
-      ...day,
-      trips: day.trips.filter((trip) => trip.id !== tripId),
-    }));
-    setTripHistory(updatedHistory);
-    setOpenMenuId(null);
+  const handleDeleteTrip = async (tripId: number) => {
+    const email = localStorage.getItem("email");
+
+    try {
+      if (email) {
+        await deleteUserTrip(email, tripId);
+      }
+
+      const updatedHistory = tripHistory
+        .map((day) => ({
+          ...day,
+          trips: day.trips.filter((trip) => trip.id !== tripId),
+        }))
+        .filter((day) => day.trips.length > 0);
+
+      setTripHistory(updatedHistory);
+      toast.success("Trip deleted");
+    } catch {
+      toast.error("Failed to delete trip");
+    } finally {
+      setOpenMenuId(null);
+    }
   };
 
   const handleSaveTrip = (updatedTrip: Trip) => {
@@ -75,6 +99,7 @@ const TripHistory = ({ tripHistory, setTripHistory }: TripHistoryProps) => {
                         <div className="flex-1">
                           <h3 className="font-semibold text-foreground">{trip.title}</h3>
                           <p className="text-sm text-muted-foreground">{trip.route}</p>
+                          <p className="text-xs text-accent mt-1">Mode: {formatMode(trip.mode)}</p>
                         </div>
                       </div>
 
@@ -88,7 +113,7 @@ const TripHistory = ({ tripHistory, setTripHistory }: TripHistoryProps) => {
                             <button onClick={() => handleEditTrip(trip)} className="w-full text-left px-4 py-2 hover:bg-muted/50">
                               Edit Trip
                             </button>
-                            <button onClick={() => handleDeleteTrip(trip.id)} className="w-full text-left px-4 py-2 hover:bg-muted/50 text-destructive">
+                            <button onClick={() => void handleDeleteTrip(trip.id)} className="w-full text-left px-4 py-2 hover:bg-muted/50 text-destructive">
                               Delete Trip
                             </button>
                           </div>

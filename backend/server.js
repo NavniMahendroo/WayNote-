@@ -1,9 +1,13 @@
 import express from "express";
 import cors from "cors";
 import {
+  addTripForUserByEmail,
+  backfillMissingTripCoordinates,
   createUser,
+  deleteTripForUserByEmail,
   getAllUsers,
   getHeatmapPointsFromUsers,
+  getTripsForUserByEmail,
   validateUserCredentials,
 } from "./database/users-db.js";
 
@@ -15,6 +19,12 @@ const GOVERNMENT_NAME = process.env.GOVERNMENT_NAME || "Government Admin";
 
 app.use(cors());
 app.use(express.json());
+app.use((_, res, next) => {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  next();
+});
 
 app.get("/api/health", (_, res) => {
   res.json({ status: "ok" });
@@ -100,6 +110,67 @@ app.post("/api/auth/login", async (req, res) => {
   });
 });
 
+app.get("/api/user/trips", async (req, res) => {
+  await backfillMissingTripCoordinates();
+
+  const email = String(req.query.email || "").trim();
+  if (!email) {
+    return res.status(400).json({ message: "email is required" });
+  }
+
+  const trips = await getTripsForUserByEmail(email);
+  if (trips === null) {
+    return res.status(404).json({ message: "user not found" });
+  }
+
+  return res.json({ trips });
+});
+
+app.post("/api/user/trips", async (req, res) => {
+  const { email, trip } = req.body || {};
+  if (!email || !trip) {
+    return res.status(400).json({ message: "email and trip are required" });
+  }
+
+  try {
+    const createdTrip = await addTripForUserByEmail(email, trip);
+    if (!createdTrip) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    return res.status(201).json({ trip: createdTrip });
+  } catch (error) {
+    if (error instanceof Error && error.message === "INVALID_TRIP") {
+      return res.status(400).json({ message: "invalid trip payload" });
+    }
+
+    return res.status(500).json({ message: "failed to save trip" });
+  }
+});
+
+app.delete("/api/user/trips/:tripId", async (req, res) => {
+  const email = String(req.query.email || "").trim();
+  const tripId = Number(req.params.tripId);
+
+  if (!email) {
+    return res.status(400).json({ message: "email is required" });
+  }
+
+  if (!Number.isFinite(tripId)) {
+    return res.status(400).json({ message: "valid tripId is required" });
+  }
+
+  const result = await deleteTripForUserByEmail(email, tripId);
+  if (result.status === "user_not_found") {
+    return res.status(404).json({ message: "user not found" });
+  }
+  if (result.status === "trip_not_found") {
+    return res.status(404).json({ message: "trip not found" });
+  }
+
+  return res.json({ message: "trip deleted" });
+});
+
 app.get("/api/admin/users", async (_, res) => {
   const users = await getAllUsers();
   const userSummaries = users
@@ -116,6 +187,7 @@ app.get("/api/admin/users", async (_, res) => {
 });
 
 app.get("/api/admin/heatmap", async (_, res) => {
+  await backfillMissingTripCoordinates();
   res.json({ points: await getHeatmapPointsFromUsers() });
 });
 

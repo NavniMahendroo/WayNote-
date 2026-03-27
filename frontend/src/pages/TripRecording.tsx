@@ -7,38 +7,87 @@ import BottomNavigation from "@/components/BottomNavigation";
 import ManualTripForm from "@/components/ManualTripForm";
 import AutoTrackingManager from "@/components/AutoTrackingManager";
 import { TripDay, Trip } from "../App";
+import { formatDateLabel, saveUserTrip } from "@/lib/trips-api";
+import { forwardGeocode } from "@/lib/geocoding";
+import { toast } from "sonner";
 
 interface TripRecordingProps {
   tripHistory: TripDay[];
   setTripHistory: React.Dispatch<React.SetStateAction<TripDay[]>>;
 }
 
-const TripRecording = ({ tripHistory, setTripHistory }: TripRecordingProps) => {
+const TripRecording = ({ setTripHistory }: TripRecordingProps) => {
   const [isTracking, setIsTracking] = useState(false);
   const [showManualForm, setShowManualForm] = useState(false);
 
+  const addTripToToday = (trip: Trip) => {
+    const todayLabel = trip.dateLabel || formatDateLabel();
+
+    setTripHistory((prev) => {
+      const todayIndex = prev.findIndex((day) => day.date === todayLabel);
+      const tripToAdd = { ...trip, dateLabel: todayLabel };
+
+      if (todayIndex === -1) {
+        return [
+          {
+            id: Date.now(),
+            date: todayLabel,
+            trips: [tripToAdd],
+          },
+          ...prev,
+        ];
+      }
+
+      return prev.map((day, index) =>
+        index === todayIndex
+          ? { ...day, trips: [...day.trips, tripToAdd] }
+          : day
+      );
+    });
+  };
+
+  const persistTrip = async (trip: Trip) => {
+    const email = localStorage.getItem("email");
+    if (!email) {
+      return;
+    }
+
+    try {
+      await saveUserTrip(email, trip);
+    } catch {
+      toast.error("Trip saved locally, but backend sync failed.");
+    }
+  };
+
   const handleAddAutoTrip = (autoTrip: Trip) => {
-    setTripHistory((prev) =>
-      prev.map((day) =>
-        day.date.includes("TODAY")
-          ? { ...day, trips: [...day.trips, { ...autoTrip, id: Date.now() }] }
-          : day
-      )
-    );
+    const trip = {
+      ...autoTrip,
+      id: Date.now(),
+      dateLabel: autoTrip.dateLabel || formatDateLabel(),
+    };
+
+    addTripToToday(trip);
+    persistTrip(trip);
   };
 
-  const handleAddManualTrip = (trip: Trip) => {
-    setTripHistory((prev) =>
-      prev.map((day) =>
-        day.date.includes("TODAY")
-          ? { ...day, trips: [...day.trips, { ...trip, id: Date.now() }] }
-          : day
-      )
-    );
-  };
+  const handleAddManualTrip = async (trip: Trip) => {
+    const [startLocation, endLocation] = trip.route.split("-").map((part) => part.trim());
+    const [startCoord, endCoord] = await Promise.all([
+      forwardGeocode(startLocation),
+      forwardGeocode(endLocation),
+    ]);
 
-  // Do not show any existing trips in TripRecording
-  const todayTrips: Trip[] = [];
+    const persistedTrip = {
+      ...trip,
+      id: Date.now(),
+      dateLabel: formatDateLabel(),
+      startCoord,
+      endCoord,
+    };
+
+    addTripToToday(persistedTrip);
+    persistTrip(persistedTrip);
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -89,7 +138,7 @@ const TripRecording = ({ tripHistory, setTripHistory }: TripRecordingProps) => {
           isOpen={showManualForm}
           onOpenChange={setShowManualForm}
           onSave={(trip) => {
-            handleAddManualTrip(trip);
+            void handleAddManualTrip(trip);
             setShowManualForm(false);
           }}
         />
